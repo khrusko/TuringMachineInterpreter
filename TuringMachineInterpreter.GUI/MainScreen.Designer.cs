@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.Drawing;
 using System.Windows.Forms;
 
 namespace TuringMachineInterpreter.GUI
@@ -14,10 +16,14 @@ namespace TuringMachineInterpreter.GUI
 		private System.Windows.Forms.Label lblState;
 		private System.Windows.Forms.Label lblTapePosition;
 
-        private string currentState = "q0";   // This is the current state of the Turing Machine (TM)
+		private string currentState = "q0";   // This is the current state of the Turing Machine (TM)
 		private int tapePosition = 0;
 
-
+		private List<String> options = new List<String>
+		{
+			"Provjeri da li je broj paran",
+			"Kopiraj uneseni tekst"
+		};
 		private void BtnStep_Click(object sender, EventArgs e)
 		{
 			if (string.IsNullOrEmpty(txtTape.Text))
@@ -26,18 +32,19 @@ namespace TuringMachineInterpreter.GUI
 			}
 
 			// For predefined tasks, execute the corresponding function
-			if (cmbTasks.SelectedItem.ToString() == "Prebroji parne brojeve")
+			if (cmbTasks.SelectedItem.ToString() == options[0])
 			{
 				ExecuteEvenNumbersTM(); // This function will count even numbers
 				return;
 			}
-			else if (cmbTasks.SelectedItem.ToString() == "Kopiraj uneseni tekst")
+			else if (cmbTasks.SelectedItem.ToString() == options[1])
 			{
 				ExecuteCopyInputTM();  // This function will copy input text
 				return;
 			}
 
 			char currentSymbol = txtTape.Text[tapePosition];
+			lblState.Text = $"State: {currentState}, Current Symbol: {currentSymbol}";
 
 			bool transitionFound = false;
 			foreach (string line in txtTransitions.Lines)
@@ -52,11 +59,13 @@ namespace TuringMachineInterpreter.GUI
 					txtTape.Text = txtTape.Text.Remove(tapePosition, 1).Insert(tapePosition, rightParts[1]);
 					transitionFound = true;
 
+					string direction = rightParts[2] == "R" ? "Right" : "Left";
+					lblState.Text += $", Moving {direction}, New Symbol: {rightParts[1]}";
+
 					if (rightParts[2] == "R")
 						tapePosition++;
 					else if (rightParts[2] == "L")
 						tapePosition--;
-
 					break;
 				}
 			}
@@ -95,23 +104,24 @@ namespace TuringMachineInterpreter.GUI
 					{
 						currentState = "q0"; // Keep moving right until you find '_'
 						MoveRight();
+						lblState.Text = $"State: q0, Moving Right";
 					}
 					else if (txtTape.Text[tapePosition] == '_')
 					{
 						MoveLeft(); // Go to the last symbol of the input
 						currentState = "q1";
+						lblState.Text = $"State: q0, Found end, moving left to check last digit";
 					}
-					lblState.Text = "Checking the last digit of the binary number.";
 					break;
 
 				case "q1": // Check last symbol state
 					if (txtTape.Text[tapePosition] == '0')
 					{
-						lblState.Text = "It's an even number. Computation completed!";
+						lblState.Text = "State: q1, Last digit is 0. It's an even number.";
 					}
 					else
 					{
-						lblState.Text = "Not an even number. Computation completed!";
+						lblState.Text = "State: q1, Last digit is not 0. Not an even number.";
 					}
 					break;
 			}
@@ -240,6 +250,7 @@ namespace TuringMachineInterpreter.GUI
 		#region Windows Form Designer generated code
 		private void InitializeComponent()
 		{
+			Font defaultFont = new Font("Segoe UI", 12F, FontStyle.Regular, GraphicsUnit.Point, ((byte)(0)));
 			this.cmbTasks = new System.Windows.Forms.ComboBox();
 			this.txtTape = new System.Windows.Forms.TextBox();
 			this.txtTransitions = new System.Windows.Forms.TextBox();
@@ -251,19 +262,18 @@ namespace TuringMachineInterpreter.GUI
 			// 
 			// cmbTasks
 			// 
+			this.cmbTasks.Font = defaultFont;
 			this.cmbTasks.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
-			this.cmbTasks.Items.AddRange(new object[] {
-            "Prebroji parne brojeve",
-            "Kopiraj uneseni tekst"});
-			
+			this.cmbTasks.Items.AddRange(options.ToArray());
 			this.cmbTasks.Location = new System.Drawing.Point(50, 15);
 			this.cmbTasks.Name = "cmbTasks";
-			this.cmbTasks.Size = new System.Drawing.Size(200, 21);
+			this.cmbTasks.Size = new System.Drawing.Size(300, 21);
 			this.cmbTasks.TabIndex = 0;
 			this.cmbTasks.SelectedIndexChanged += new System.EventHandler(this.CmbTasks_SelectedIndexChanged);
 			// 
 			// txtTape
 			// 
+			this.txtTape.Font = defaultFont;
 			this.txtTape.Location = new System.Drawing.Point(50, 50);
 			this.txtTape.Name = "txtTape";
 			this.txtTape.Size = new System.Drawing.Size(700, 20);
@@ -271,6 +281,7 @@ namespace TuringMachineInterpreter.GUI
 			// 
 			// txtTransitions
 			// 
+			this.txtTransitions.Font = defaultFont;
 			this.txtTransitions.Location = new System.Drawing.Point(50, 100);
 			this.txtTransitions.Multiline = true;
 			this.txtTransitions.Name = "txtTransitions";
@@ -279,32 +290,35 @@ namespace TuringMachineInterpreter.GUI
 			// 
 			// btnStep
 			// 
+			this.btnStep.Font = defaultFont;
 			this.btnStep.Location = new System.Drawing.Point(50, 350);
 			this.btnStep.Name = "btnStep";
-			this.btnStep.Size = new System.Drawing.Size(75, 23);
+			this.btnStep.Size = new System.Drawing.Size(100, 50);
 			this.btnStep.TabIndex = 3;
-			this.btnStep.Text = "Step";
+			this.btnStep.Text = "Dalje";
 			this.btnStep.Click += new System.EventHandler(this.BtnStep_Click);
 			// 
 			// lblState
 			// 
-			this.lblState.Location = new System.Drawing.Point(150, 350);
+			this.lblState.Font = defaultFont;
+			this.lblState.Location = new System.Drawing.Point(160, 360);
 			this.lblState.Name = "lblState";
-			this.lblState.Size = new System.Drawing.Size(600, 20);
+			this.lblState.Size = new System.Drawing.Size(600, 40);
 			this.lblState.TabIndex = 4;
 			// 
 			// lblTapePosition
 			// 
+			this.lblTapePosition.Font = defaultFont;
 			this.lblTapePosition.Location = new System.Drawing.Point(50, 75);
 			this.lblTapePosition.Name = "lblTapePosition";
-			this.lblTapePosition.Size = new System.Drawing.Size(700, 20);
+			this.lblTapePosition.Size = new System.Drawing.Size(700, 40);
 			this.lblTapePosition.TabIndex = 5;
 			// 
 			// MainScreen
 			// 
-			this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
-			this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-			this.ClientSize = new System.Drawing.Size(800, 450);
+			this.AutoScaleDimensions = new SizeF(7F, 16F);  // Adjusted for the new font size
+			this.AutoScaleMode = AutoScaleMode.Font;
+			this.ClientSize = new Size(800, 450);
 			this.Controls.Add(this.cmbTasks);
 			this.Controls.Add(this.txtTape);
 			this.Controls.Add(this.txtTransitions);
