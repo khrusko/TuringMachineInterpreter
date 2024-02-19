@@ -376,24 +376,28 @@ namespace TuringMachineInterpreter.GUI
 
 
 		//---------------------------------------------User defined simulations--------------------------------
+		private string ycurrentState = "q0";
+        private int ytapePosition = 0;
+        private bool ysimulationStarted = false;
+        private Dictionary<(string, char), (string, char, char)> userDefinedRules;
 		private void clearSecondGroupInputs()
 		{
 			ytxtTape.Text = string.Empty;
 			ytxtTapeView.Text = string.Empty;
 			ytxtHeadPosition.Text = string.Empty;
-			//ytxtTransitions.Text = string.Empty;
+			ytxtTransitions.Text = string.Empty;
 			ylblState.Text = string.Empty;
 			ylblTapePosition.Text = string.Empty;
-			currentState = "q0";
-			tapePosition = 0;
-			txtTape.Enabled = true;
-			simulationStarted = false;
+			ycurrentState = "q0";
+			ytapePosition = 0;
+			ytxtTape.Enabled = true;
+			ysimulationStarted = false;
 		}
 
 		private void YMoveRight()
 		{
-			tapePosition++;
-			if (tapePosition >= ytxtTape.Text.Length)
+			ytapePosition++;
+			if (ytapePosition >= ytxtTape.Text.Length)
 			{
 				ytxtTape.Text += "_"; // Extend the tape
 			}
@@ -401,44 +405,89 @@ namespace TuringMachineInterpreter.GUI
 
 		private void YMoveLeft()
 		{
-			tapePosition--;
-			if (tapePosition < 0)
+			ytapePosition--;
+			if (ytapePosition < 0)
 			{
 				ytxtTape.Text = "_" + ytxtTape.Text; // Extend the tape
-				tapePosition = 0; // Adjust the tape position
+				ytapePosition = 0; // Adjust the tape position
 			}
 		}
 
 		private void YWriteSymbol(char symbol)
 		{
-			ytxtTape.Text = ytxtTape.Text.Remove(tapePosition, 1).Insert(tapePosition, symbol.ToString());
+			ytxtTape.Text = ytxtTape.Text.Remove(ytapePosition, 1).Insert(ytapePosition, symbol.ToString());
 		}
 
-
-
-		private void YBtnStep_Click(object sender, EventArgs e)
+		private void ParseUserDefinedRules()
 		{
-			ParseAndStoreRules(ytxtInstructions.Text);
-			ExecuteSimulation();
+			userDefinedRules = new Dictionary<(string, char), (string, char, char)>();
+			var lines = ytxtTransitions.Text.Split(new[] { Environment.NewLine }, StringSplitOptions.RemoveEmptyEntries);
+			foreach (var line in lines)
+			{
+				var parts = line.Split(new[] { "->" }, StringSplitOptions.RemoveEmptyEntries);
+				var currentStateSymbol = parts[0].Split(',');
+				var newStateSymbolDirection = parts[1].Split(',');
 
-			//ResetSimulation();
+				var key = (currentStateSymbol[0].Trim(), currentStateSymbol[1].Trim()[0]);
+				var value = (newStateSymbolDirection[0].Trim(), newStateSymbolDirection[1].Trim()[0], newStateSymbolDirection[2].Trim()[0]);
+
+				userDefinedRules[key] = value;
+			}
 		}
 
-		private void ExecuteSimulation()
+		private void ExecuteUserDefinedSimulationStep()
 		{
-			throw new NotImplementedException();
+			if (ycurrentState == "qf")
+			{
+				MessageBox.Show("Simulacija završena.");
+				return;
+			}
+
+			var currentSymbol = ytxtTape.Text.Length > ytapePosition ? ytxtTape.Text[ytapePosition] : '_';
+			var key = (ycurrentState, currentSymbol);
+
+			if (userDefinedRules.TryGetValue(key, out var rule))
+			{
+				YWriteSymbol(rule.Item2);
+				ycurrentState = rule.Item1;
+				if (rule.Item3 == 'R') YMoveRight();
+				else if (rule.Item3 == 'L') YMoveLeft();
+
+				UpdateUI();
+			}
+			else
+			{
+				MessageBox.Show("Nedostaje pravilo za trenutno stanje i simbol.");
+				ycurrentState = "qf";
+			}
 		}
 
-		private void ResetSimulation()
+		private void UpdateUI()
 		{
-			clearSecondGroupInputs();
-			throw new NotImplementedException();
+			YFormatInputAsCells(ytxtTape.Text);
+			ylblState.Text = $"Trenutno stanje: {ycurrentState}";
+			ytxtHeadPosition.Text = new string(' ', ytapePosition * 2) + "^";
 		}
 
-		private void ParseAndStoreRules(object text)
+		private void YFormatInputAsCells(string input)
 		{
-			throw new NotImplementedException();
+			var formattedText = string.Join("|", input.ToCharArray());
+			ytxtTapeView.Text = formattedText + "|_|";
 		}
+
+		private void ybtnStep_Click(object sender, EventArgs e)
+		{
+			if (!ysimulationStarted)
+			{
+				ParseUserDefinedRules();
+				ysimulationStarted = true;
+				ytxtTape.Enabled = false;
+			}
+
+			ExecuteUserDefinedSimulationStep();
+		}
+
+
 
 		protected override void Dispose(bool disposing)
 		{
@@ -455,6 +504,7 @@ namespace TuringMachineInterpreter.GUI
 			this.lblTapePosition = new System.Windows.Forms.Label();
 			this.tabControl1 = new System.Windows.Forms.TabControl();
 			this.tabPage1 = new System.Windows.Forms.TabPage();
+			this.label18 = new System.Windows.Forms.Label();
 			this.label8 = new System.Windows.Forms.Label();
 			this.label7 = new System.Windows.Forms.Label();
 			this.label6 = new System.Windows.Forms.Label();
@@ -471,6 +521,7 @@ namespace TuringMachineInterpreter.GUI
 			this.btnStep = new System.Windows.Forms.Button();
 			this.lblState = new System.Windows.Forms.Label();
 			this.tabPage2 = new System.Windows.Forms.TabPage();
+			this.label16 = new System.Windows.Forms.Label();
 			this.ylblTapePosition = new System.Windows.Forms.Label();
 			this.label17 = new System.Windows.Forms.Label();
 			this.ytxtInstructions = new System.Windows.Forms.TextBox();
@@ -487,8 +538,6 @@ namespace TuringMachineInterpreter.GUI
 			this.ytxtTransitions = new System.Windows.Forms.TextBox();
 			this.ybtnStep = new System.Windows.Forms.Button();
 			this.ylblState = new System.Windows.Forms.Label();
-			this.label16 = new System.Windows.Forms.Label();
-			this.label18 = new System.Windows.Forms.Label();
 			this.tabControl1.SuspendLayout();
 			this.tabPage1.SuspendLayout();
 			this.tabPage2.SuspendLayout();
@@ -538,6 +587,15 @@ namespace TuringMachineInterpreter.GUI
 			this.tabPage1.TabIndex = 0;
 			this.tabPage1.Text = "Predefinirane simulacije";
 			this.tabPage1.UseVisualStyleBackColor = true;
+			// 
+			// label18
+			// 
+			this.label18.Font = new System.Drawing.Font("Segoe UI", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(238)));
+			this.label18.Location = new System.Drawing.Point(25, 151);
+			this.label18.Name = "label18";
+			this.label18.Size = new System.Drawing.Size(113, 18);
+			this.label18.TabIndex = 42;
+			this.label18.Text = "Pojašnjenja koraka:";
 			// 
 			// label8
 			// 
@@ -717,6 +775,15 @@ namespace TuringMachineInterpreter.GUI
 			this.tabPage2.Text = "Simulacije s vlastitim unosom instrukcija";
 			this.tabPage2.UseVisualStyleBackColor = true;
 			// 
+			// label16
+			// 
+			this.label16.Font = new System.Drawing.Font("Segoe UI", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(238)));
+			this.label16.Location = new System.Drawing.Point(32, 160);
+			this.label16.Name = "label16";
+			this.label16.Size = new System.Drawing.Size(113, 18);
+			this.label16.TabIndex = 41;
+			this.label16.Text = "Pojašnjenja koraka:";
+			// 
 			// ylblTapePosition
 			// 
 			this.ylblTapePosition.Font = new System.Drawing.Font("Segoe UI", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
@@ -745,6 +812,7 @@ namespace TuringMachineInterpreter.GUI
 			this.ytxtInstructions.Name = "ytxtInstructions";
 			this.ytxtInstructions.Size = new System.Drawing.Size(272, 20);
 			this.ytxtInstructions.TabIndex = 38;
+			this.ytxtInstructions.Text = "q0,a -> q1,b,R";
 			// 
 			// label9
 			// 
@@ -876,24 +944,6 @@ namespace TuringMachineInterpreter.GUI
 			this.ylblState.Size = new System.Drawing.Size(131, 32);
 			this.ylblState.TabIndex = 28;
 			this.ylblState.Text = "string";
-			// 
-			// label16
-			// 
-			this.label16.Font = new System.Drawing.Font("Segoe UI", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(238)));
-			this.label16.Location = new System.Drawing.Point(32, 160);
-			this.label16.Name = "label16";
-			this.label16.Size = new System.Drawing.Size(113, 18);
-			this.label16.TabIndex = 41;
-			this.label16.Text = "Pojašnjenja koraka:";
-			// 
-			// label18
-			// 
-			this.label18.Font = new System.Drawing.Font("Segoe UI", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(238)));
-			this.label18.Location = new System.Drawing.Point(25, 151);
-			this.label18.Name = "label18";
-			this.label18.Size = new System.Drawing.Size(113, 18);
-			this.label18.TabIndex = 42;
-			this.label18.Text = "Pojašnjenja koraka:";
 			// 
 			// MainScreen
 			// 
