@@ -387,11 +387,11 @@ namespace TuringMachineInterpreter.GUI
 			ytxtHeadPosition.Text = string.Empty;
 			ytxtTransitions.Text = string.Empty;
 			ylblState.Text = string.Empty;
-			ylblTapePosition.Text = string.Empty;
 			ycurrentState = "q0";
 			ytapePosition = 0;
 			ytxtTape.Enabled = true;
 			ysimulationStarted = false;
+			ytxtInstructions.Text = string.Empty;
 		}
 
 		private void YMoveRight()
@@ -421,7 +421,7 @@ namespace TuringMachineInterpreter.GUI
 		private void ParseUserDefinedRules()
 		{
 			userDefinedRules = new Dictionary<(string, char), (string, char, char)>();
-			var lines = ytxtTransitions.Text.Split(new[] { Environment.NewLine }, StringSplitOptions.RemoveEmptyEntries);
+			var lines = ytxtInstructions.Text.Split(new[] { "\r\n", "\n" }, StringSplitOptions.RemoveEmptyEntries);
 			foreach (var line in lines)
 			{
 				var parts = line.Split(new[] { "->" }, StringSplitOptions.RemoveEmptyEntries);
@@ -453,7 +453,7 @@ namespace TuringMachineInterpreter.GUI
 				if (rule.Item3 == 'R') YMoveRight();
 				else if (rule.Item3 == 'L') YMoveLeft();
 
-				UpdateUI();
+				
 			}
 			else
 			{
@@ -465,7 +465,7 @@ namespace TuringMachineInterpreter.GUI
 		private void UpdateUI()
 		{
 			YFormatInputAsCells(ytxtTape.Text);
-			ylblState.Text = $"Trenutno stanje: {ycurrentState}";
+			ylblState.Text = ycurrentState;
 			ytxtHeadPosition.Text = new string(' ', ytapePosition * 2) + "^";
 		}
 
@@ -485,6 +485,7 @@ namespace TuringMachineInterpreter.GUI
 			}
 
 			ExecuteUserDefinedSimulationStep();
+			UpdateUI();
 		}
 
 
@@ -522,7 +523,6 @@ namespace TuringMachineInterpreter.GUI
 			this.lblState = new System.Windows.Forms.Label();
 			this.tabPage2 = new System.Windows.Forms.TabPage();
 			this.label16 = new System.Windows.Forms.Label();
-			this.ylblTapePosition = new System.Windows.Forms.Label();
 			this.label17 = new System.Windows.Forms.Label();
 			this.ytxtInstructions = new System.Windows.Forms.TextBox();
 			this.label9 = new System.Windows.Forms.Label();
@@ -634,6 +634,7 @@ namespace TuringMachineInterpreter.GUI
 			this.txtHeadPosition.Location = new System.Drawing.Point(30, 134);
 			this.txtHeadPosition.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
 			this.txtHeadPosition.Name = "txtHeadPosition";
+			this.txtHeadPosition.ReadOnly = true;
 			this.txtHeadPosition.Size = new System.Drawing.Size(601, 19);
 			this.txtHeadPosition.TabIndex = 21;
 			this.txtHeadPosition.Text = "^";
@@ -665,6 +666,7 @@ namespace TuringMachineInterpreter.GUI
 			this.txtTapeView.Location = new System.Drawing.Point(28, 104);
 			this.txtTapeView.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
 			this.txtTapeView.Name = "txtTapeView";
+			this.txtTapeView.ReadOnly = true;
 			this.txtTapeView.Size = new System.Drawing.Size(601, 26);
 			this.txtTapeView.TabIndex = 18;
 			// 
@@ -751,7 +753,6 @@ namespace TuringMachineInterpreter.GUI
 			// tabPage2
 			// 
 			this.tabPage2.Controls.Add(this.label16);
-			this.tabPage2.Controls.Add(this.ylblTapePosition);
 			this.tabPage2.Controls.Add(this.label17);
 			this.tabPage2.Controls.Add(this.ytxtInstructions);
 			this.tabPage2.Controls.Add(this.label9);
@@ -778,20 +779,11 @@ namespace TuringMachineInterpreter.GUI
 			// label16
 			// 
 			this.label16.Font = new System.Drawing.Font("Segoe UI", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(238)));
-			this.label16.Location = new System.Drawing.Point(32, 160);
+			this.label16.Location = new System.Drawing.Point(34, 254);
 			this.label16.Name = "label16";
 			this.label16.Size = new System.Drawing.Size(113, 18);
 			this.label16.TabIndex = 41;
 			this.label16.Text = "Pojašnjenja koraka:";
-			// 
-			// ylblTapePosition
-			// 
-			this.ylblTapePosition.Font = new System.Drawing.Font("Segoe UI", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-			this.ylblTapePosition.Location = new System.Drawing.Point(248, 380);
-			this.ylblTapePosition.Name = "ylblTapePosition";
-			this.ylblTapePosition.Size = new System.Drawing.Size(78, 32);
-			this.ylblTapePosition.TabIndex = 40;
-			this.ylblTapePosition.Text = "0";
 			// 
 			// label17
 			// 
@@ -806,13 +798,13 @@ namespace TuringMachineInterpreter.GUI
 			// 
 			this.ytxtInstructions.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
 			this.ytxtInstructions.Font = new System.Drawing.Font("Courier New", 12F);
-			this.ytxtInstructions.Location = new System.Drawing.Point(35, 40);
+			this.ytxtInstructions.Location = new System.Drawing.Point(35, 35);
 			this.ytxtInstructions.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
 			this.ytxtInstructions.Multiline = true;
 			this.ytxtInstructions.Name = "ytxtInstructions";
-			this.ytxtInstructions.Size = new System.Drawing.Size(272, 20);
+			this.ytxtInstructions.Size = new System.Drawing.Size(179, 146);
 			this.ytxtInstructions.TabIndex = 38;
-			this.ytxtInstructions.Text = "q0,a -> q1,b,R";
+			this.ytxtInstructions.Text = "q0,1 -> q1,1,R q0,1 -> q1,1,R q0,1 -> q1,1,R";
 			// 
 			// label9
 			// 
@@ -848,9 +840,10 @@ namespace TuringMachineInterpreter.GUI
 			// 
 			this.ytxtHeadPosition.BorderStyle = System.Windows.Forms.BorderStyle.None;
 			this.ytxtHeadPosition.Font = new System.Drawing.Font("Courier New", 12F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(238)));
-			this.ytxtHeadPosition.Location = new System.Drawing.Point(37, 139);
+			this.ytxtHeadPosition.Location = new System.Drawing.Point(37, 233);
 			this.ytxtHeadPosition.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
 			this.ytxtHeadPosition.Name = "ytxtHeadPosition";
+			this.ytxtHeadPosition.ReadOnly = true;
 			this.ytxtHeadPosition.Size = new System.Drawing.Size(601, 19);
 			this.ytxtHeadPosition.TabIndex = 34;
 			this.ytxtHeadPosition.Text = "^";
@@ -859,7 +852,7 @@ namespace TuringMachineInterpreter.GUI
 			// 
 			this.label12.Font = new System.Drawing.Font("Segoe UI", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(238)));
 			this.label12.ForeColor = System.Drawing.SystemColors.AppWorkspace;
-			this.label12.Location = new System.Drawing.Point(458, 89);
+			this.label12.Location = new System.Drawing.Point(458, 183);
 			this.label12.Name = "label12";
 			this.label12.Size = new System.Drawing.Size(178, 18);
 			this.label12.TabIndex = 33;
@@ -868,7 +861,7 @@ namespace TuringMachineInterpreter.GUI
 			// label13
 			// 
 			this.label13.Font = new System.Drawing.Font("Segoe UI", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(238)));
-			this.label13.Location = new System.Drawing.Point(32, 89);
+			this.label13.Location = new System.Drawing.Point(32, 183);
 			this.label13.Name = "label13";
 			this.label13.Size = new System.Drawing.Size(99, 18);
 			this.label13.TabIndex = 32;
@@ -879,16 +872,17 @@ namespace TuringMachineInterpreter.GUI
 			this.ytxtTapeView.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
 			this.ytxtTapeView.Enabled = false;
 			this.ytxtTapeView.Font = new System.Drawing.Font("Courier New", 12F);
-			this.ytxtTapeView.Location = new System.Drawing.Point(35, 109);
+			this.ytxtTapeView.Location = new System.Drawing.Point(35, 203);
 			this.ytxtTapeView.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
 			this.ytxtTapeView.Name = "ytxtTapeView";
+			this.ytxtTapeView.ReadOnly = true;
 			this.ytxtTapeView.Size = new System.Drawing.Size(601, 26);
 			this.ytxtTapeView.TabIndex = 31;
 			// 
 			// label14
 			// 
 			this.label14.Font = new System.Drawing.Font("Segoe UI", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(238)));
-			this.label14.Location = new System.Drawing.Point(361, 15);
+			this.label14.Location = new System.Drawing.Point(310, 15);
 			this.label14.Name = "label14";
 			this.label14.Size = new System.Drawing.Size(99, 18);
 			this.label14.TabIndex = 30;
@@ -907,21 +901,21 @@ namespace TuringMachineInterpreter.GUI
 			// 
 			this.ytxtTape.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
 			this.ytxtTape.Font = new System.Drawing.Font("Courier New", 12F);
-			this.ytxtTape.Location = new System.Drawing.Point(364, 40);
+			this.ytxtTape.Location = new System.Drawing.Point(313, 40);
 			this.ytxtTape.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
 			this.ytxtTape.Name = "ytxtTape";
-			this.ytxtTape.Size = new System.Drawing.Size(272, 26);
+			this.ytxtTape.Size = new System.Drawing.Size(323, 26);
 			this.ytxtTape.TabIndex = 25;
 			// 
 			// ytxtTransitions
 			// 
 			this.ytxtTransitions.Font = new System.Drawing.Font("Segoe UI", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-			this.ytxtTransitions.Location = new System.Drawing.Point(35, 176);
+			this.ytxtTransitions.Location = new System.Drawing.Point(37, 274);
 			this.ytxtTransitions.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
 			this.ytxtTransitions.Multiline = true;
 			this.ytxtTransitions.Name = "ytxtTransitions";
 			this.ytxtTransitions.ReadOnly = true;
-			this.ytxtTransitions.Size = new System.Drawing.Size(601, 157);
+			this.ytxtTransitions.Size = new System.Drawing.Size(599, 59);
 			this.ytxtTransitions.TabIndex = 26;
 			this.ytxtTransitions.Text = "U polje Instrukcije unosite pravila koja definiraju ponašanje Turingovog stroja. " +
     "         U polje Unos upisujete podatke koje Turingov stroj treba obraditi.";
@@ -935,6 +929,7 @@ namespace TuringMachineInterpreter.GUI
 			this.ybtnStep.Size = new System.Drawing.Size(86, 41);
 			this.ybtnStep.TabIndex = 27;
 			this.ybtnStep.Text = "Dalje";
+			this.ybtnStep.Click += new System.EventHandler(this.ybtnStep_Click);
 			// 
 			// ylblState
 			// 
@@ -1000,7 +995,6 @@ namespace TuringMachineInterpreter.GUI
 		private TextBox ytxtTransitions;
 		private Button ybtnStep;
 		private Label ylblState;
-		private Label ylblTapePosition;
 		private Label label18;
 		private Label label16;
 	}
