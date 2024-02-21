@@ -47,25 +47,24 @@ namespace TuringMachineInterpreter.GUI
 
 			UpdateTapeAndHeadPosition(tapePosition);
 
-			// For predefined tasks, execute the corresponding function
 			if (cmbTasks.SelectedItem.ToString() == options[0])
 			{
-				ExecuteEvenNumbersTM(); // This function will check if the input is an even binary number
+				ExecuteEvenNumbersBinaryTM(); 
 				return;
 			}
 			else if (cmbTasks.SelectedItem.ToString() == options[1])
 			{
-				ExecuteFlipInputCharactersTM();  // This function will copy input text
+				ExecuteFlipInputCharactersTM();
 				return;
 			}
 			else if (cmbTasks.SelectedItem.ToString() == options[2])
 			{
-				ExecuteLowerCaseToUpperTM();  // This function will turn small into capital letters
+				ExecuteLowerCaseToUpperTM();  
 				return;
 			}
 			else if (cmbTasks.SelectedItem.ToString() == options[3])
 			{
-				ExecuteEvenNumbersDecimalTM();  // This function will check if the input is an even decimal number
+				ExecuteEvenNumbersDecimalTM();  
 				return;
 			}
 
@@ -100,11 +99,11 @@ namespace TuringMachineInterpreter.GUI
 			if (tapePosition < 0)
 			{
 				txtTape.Text = "_" + txtTape.Text;
-				tapePosition = 0; // Reset to beginning
+				tapePosition = 0; 
 			}
 			else if (tapePosition >= txtTape.Text.Length)
 			{
-				txtTape.Text += "_"; // Expand tape by adding a blank symbol at the end
+				txtTape.Text += "_"; 
 			}
 
 			if (!transitionFound)
@@ -117,7 +116,7 @@ namespace TuringMachineInterpreter.GUI
 				lblState.Text = currentState;
 			}
 
-			string positionMarker = new string(' ', tapePosition * 2) + "^"; // Multiplying by 2 is a simple way to align with characters in a TextBox, assuming a fixed-width font.
+			string positionMarker = new string(' ', tapePosition * 2) + "^";
 			lblTapePosition.Text = positionMarker;
 		}
 
@@ -125,26 +124,26 @@ namespace TuringMachineInterpreter.GUI
 		{
 			switch (currentState)
 			{
-				case "q0": // Početno stanje
+				case "q0": 
 					if ("0123456789".Contains(txtTape.Text[tapePosition]))
 					{
-						currentState = "q0"; // Nastavi kretanje udesno dok ne pronađeš '_'
+						currentState = "q0"; 
 						MoveRight();
 						lblState.Text = currentState;
 						txtTransitions.Text = "Kretanje udesno do pronalaska završetka broja";
 					}
 					else if (txtTape.Text[tapePosition] == '_')
 					{
-						MoveLeft(); // Vrati se na zadnju znamenku broja
+						MoveLeft(); 
 						currentState = "q1";
 						lblState.Text = currentState;
 						txtTransitions.Text = "Pronađen kraj broja, pomicanje za 1 mjesto ulijevo za provjeru zadnje znamenke";
 					}
 					break;
 
-				case "q1": // Provjera zadnje znamenke
+				case "q1": 
 					currentState = "qf";
-					if ("02468".Contains(txtTape.Text[tapePosition])) // Ako je zadnja znamenka 0, 2, 4, 6, ili 8
+					if ("02468".Contains(txtTape.Text[tapePosition]))
 					{
 						lblState.Text = currentState;
 						txtTransitions.Text = "Zadnja znamenka unesenog broja je " + txtTape.Text[tapePosition] + ". Broj je paran";
@@ -163,28 +162,28 @@ namespace TuringMachineInterpreter.GUI
 		{
 			switch (currentState)
 			{
-				case "q0": // Početno stanje
-					if (txtTape.Text[tapePosition] != '_') // Ako trenutni znak nije prazna ćelija
+				case "q0": 
+					if (txtTape.Text[tapePosition] != '_') 
 					{
-						// Provjerite je li trenutni znak malo slovo
+						
 						if (txtTape.Text[tapePosition] >= 'a' && txtTape.Text[tapePosition] <= 'z')
 						{
-							// Zamijenite malo slovo s velikim
+							
 							char upperCaseChar = char.ToUpper(txtTape.Text[tapePosition]);
 							txtTape.Text = txtTape.Text.Remove(tapePosition, 1).Insert(tapePosition, upperCaseChar.ToString());
 
-							// Osvježite prikaz u txtTapeView nakon svake promjene
+							
 							FormatInputAsCells(txtTape.Text);
 						}
 
-						// Pomaknite se udesno kako biste provjerili sljedeći znak
+						
 						MoveRight();
 						lblState.Text = "q0";
 						txtTransitions.Text = "Pretvaranje malih slova u velika i kretanje udesno";
 					}
-					else // Ako naiđete na praznu ćeliju
+					else 
 					{
-						// Prelazak u završno stanje
+						
 						currentState = "qf";
 						lblState.Text = "qf";
 						txtTransitions.Text = "Pronađena prazna ćelija, završetak pretvorbe";
@@ -196,29 +195,29 @@ namespace TuringMachineInterpreter.GUI
 
 
 
-		private void ExecuteEvenNumbersTM()
+		private void ExecuteEvenNumbersBinaryTM()
 		{
-			// TM Rules for counting even numbers in binary
+			
 			switch (currentState)
 			{
-				case "q0": // Initial state
+				case "q0": 
 					if (txtTape.Text[tapePosition] == '0' || txtTape.Text[tapePosition] == '1')
 					{
-						currentState = "q0"; // Keep moving right until you find '_'
+						currentState = "q0"; 
 						MoveRight();
 						lblState.Text = currentState;
 						txtTransitions.Text = "Kretanje udesno do pronalaska završetka broja";
 					}
 					else if (txtTape.Text[tapePosition] == '_')
 					{
-						MoveLeft(); // Go to the last symbol of the input
+						MoveLeft(); 
 						currentState = "q1";
 						lblState.Text = currentState;
 						txtTransitions.Text = "Pronađen kraj broja, pomicanje za 1 mjesto ulijevo za provjeru zadnje znamenke";
 					}
 					break;
 
-				case "q1": // Check last symbol state
+				case "q1": 
 					currentState = "qf";
 					if (txtTape.Text[tapePosition] == '0')
 					{
@@ -236,50 +235,50 @@ namespace TuringMachineInterpreter.GUI
 
 		private void ExecuteFlipInputCharactersTM()
 		{
-			// TM Rules for copying string made up of 'a's and 'b's
+			
 			switch (currentState)
 			{
-				case "q0": // Initial state
+				case "q0": 
 					if (txtTape.Text[tapePosition] == 'a')
 					{
-						WriteSymbol('X'); // Mark the symbol as read
-						currentState = "q1"; // Go to copy state for 'a'
+						WriteSymbol('X'); 
+						currentState = "q1"; 
 						MoveRight();
 					}
 					else if (txtTape.Text[tapePosition] == 'b')
 					{
-						WriteSymbol('Y'); // Mark the symbol as read
-						currentState = "q2"; // Go to copy state for 'b'
+						WriteSymbol('Y'); 
+						currentState = "q2"; 
 						MoveRight();
 					}
 					else if (txtTape.Text[tapePosition] == '_')
 					{
-						currentState = "qf"; // Final state
+						currentState = "qf"; 
 						lblState.Text = "Tekst je kopiran!";
 					}
 					UpdateTapeAndHeadPosition(tapePosition);
 					break;
 
-				case "q1": // Copy 'a' state
+				case "q1": 
 					if (txtTape.Text[tapePosition] != '#')
 					{
-						MoveRight(); // Keep moving until you find the delimiter
+						MoveRight(); 
 					}
 					else
 					{
-						MoveRight(); // Move past the delimiter
+						MoveRight();
 						while (txtTape.Text[tapePosition] == 'a' || txtTape.Text[tapePosition] == 'b')
 						{
-							MoveRight(); // Find the spot to write the copy
+							MoveRight(); 
 						}
 						WriteSymbol('a');
-						currentState = "q3"; // Return to beginning of string
+						currentState = "q3"; 
 						MoveLeft();
 					}
 					UpdateTapeAndHeadPosition(tapePosition);
 					break;
 
-				case "q2": // Copy 'b' state
+				case "q2": 
 					if (txtTape.Text[tapePosition] != '#')
 					{
 						MoveRight();
@@ -298,15 +297,15 @@ namespace TuringMachineInterpreter.GUI
 					UpdateTapeAndHeadPosition(tapePosition);
 					break;
 
-				case "q3": // Return state
+				case "q3": 
 					if (txtTape.Text[tapePosition] != '#')
 					{
 						MoveLeft();
 					}
 					else
 					{
-						MoveLeft(); // Move past the delimiter
-						currentState = "q0"; // Return to the initial state
+						MoveLeft(); 
+						currentState = "q0";
 					}
 					UpdateTapeAndHeadPosition(tapePosition);
 					break;
@@ -318,7 +317,7 @@ namespace TuringMachineInterpreter.GUI
 			tapePosition++;
 			if (tapePosition >= txtTape.Text.Length)
 			{
-				txtTape.Text += "_"; // Extend the tape
+				txtTape.Text += "_"; 
 			}
 		}
 
@@ -327,8 +326,8 @@ namespace TuringMachineInterpreter.GUI
 			tapePosition--;
 			if (tapePosition < 0)
 			{
-				txtTape.Text = "_" + txtTape.Text; // Extend the tape
-				tapePosition = 0; // Adjust the tape position
+				txtTape.Text = "_" + txtTape.Text; 
+				tapePosition = 0; 
 			}
 		}
 
@@ -368,8 +367,8 @@ namespace TuringMachineInterpreter.GUI
 			txtTransitions.Text = string.Empty;
 			lblState.Text = string.Empty;
 			lblTapePosition.Text = string.Empty;
-			currentState = "q0";  // reset current state
-			tapePosition = 0;     // reset tape position
+			currentState = "q0";  
+			tapePosition = 0;     
 			txtTape.Enabled = true;
 			simulationStarted = false;
 		}
@@ -399,7 +398,7 @@ namespace TuringMachineInterpreter.GUI
 			ytapePosition++;
 			if (ytapePosition >= ytxtTape.Text.Length)
 			{
-				ytxtTape.Text += "_"; // Extend the tape
+				ytxtTape.Text += "_"; 
 			}
 		}
 
@@ -408,8 +407,8 @@ namespace TuringMachineInterpreter.GUI
 			ytapePosition--;
 			if (ytapePosition < 0)
 			{
-				ytxtTape.Text = "_" + ytxtTape.Text; // Extend the tape
-				ytapePosition = 0; // Adjust the tape position
+				ytxtTape.Text = "_" + ytxtTape.Text; 
+				ytapePosition = 0; 
 			}
 		}
 
