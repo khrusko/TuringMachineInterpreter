@@ -41,6 +41,7 @@ namespace TuringMachineInterpreter.GUI
 			tapePosition = 0;     // reset tape position
 			simulationStarted = false;
 			txtTape.Enabled = true;
+			stepCount = 0;
 
 			//Second group inputs
 			ytxtTape.Text = string.Empty;
@@ -53,6 +54,7 @@ namespace TuringMachineInterpreter.GUI
 			ytxtTape.Enabled = true;
 			ysimulationStarted = false;
 			ytxtInstructions.Text = string.Empty;
+			ystepCount = 0;
 		}
 
 

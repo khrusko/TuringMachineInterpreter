@@ -11,10 +11,11 @@ namespace TuringMachineInterpreter.GUI
 		private System.ComponentModel.IContainer components = null;
 		private System.Windows.Forms.Label lblTapePosition;
 
-		private string currentState = "q0";   // This is the current state of the Turing Machine (TM)
+		private string currentState = "q0";   
 		private int tapePosition = 0;
 		private string intialInput = "";
 		private bool simulationStarted = false;
+		private int stepCount = 0;
 
 		private List<String> options = new List<String>
 		{
@@ -26,7 +27,7 @@ namespace TuringMachineInterpreter.GUI
 
 		private void FormatInputAsCells(string input)
 		{
-			var formattedText = string.Join("|", input.ToCharArray()); // Dodaje vertikalne crtice između znakova
+			var formattedText = string.Join("|", input.ToCharArray()); 
 			txtTapeView.Text = formattedText+"|_|";
 		}
 
@@ -36,8 +37,18 @@ namespace TuringMachineInterpreter.GUI
 
 		private void BtnStep_Click(object sender, EventArgs e)
 		{
-			simulationStarted = true;
-			txtTape.Enabled = false;
+			if (!simulationStarted)
+			{
+				simulationStarted = true;
+				txtTape.Enabled = false;
+				stepCount = 0;
+			}
+
+			if (stepCount >= 30)
+			{
+				MessageBox.Show("Simulacija je zaustavljena nakon 30 koraka.");
+				return;
+			}
 
 			if (string.IsNullOrEmpty(txtTape.Text))
 				txtTape.Text = "_";
@@ -118,6 +129,8 @@ namespace TuringMachineInterpreter.GUI
 
 			string positionMarker = new string(' ', tapePosition * 2) + "^";
 			lblTapePosition.Text = positionMarker;
+
+			stepCount++;
 		}
 
 		private void ExecuteEvenNumbersDecimalTM()
@@ -371,6 +384,7 @@ namespace TuringMachineInterpreter.GUI
 			tapePosition = 0;     
 			txtTape.Enabled = true;
 			simulationStarted = false;
+			stepCount = 0;
 		}
 
 
@@ -379,6 +393,8 @@ namespace TuringMachineInterpreter.GUI
         private int ytapePosition = 0;
         private bool ysimulationStarted = false;
         private Dictionary<(string, char), (string, char, char)> userDefinedRules;
+		private int ystepCount = 0;
+
 		private void clearSecondGroupInputs()
 		{
 			ytxtTape.Text = string.Empty;
@@ -391,6 +407,7 @@ namespace TuringMachineInterpreter.GUI
 			ytxtTape.Enabled = true;
 			ysimulationStarted = false;
 			ytxtInstructions.Text = string.Empty;
+			ystepCount = 0;
 		}
 
 		private void YMoveRight()
@@ -483,9 +500,19 @@ namespace TuringMachineInterpreter.GUI
 				ytxtTape.Enabled = false;
 			}
 
-			ExecuteUserDefinedSimulationStep();
-			UpdateUI();
+			if (ystepCount < 30) 
+			{
+				ExecuteUserDefinedSimulationStep();
+				UpdateUI();
+				ystepCount++;
+			}
+			else
+			{
+				MessageBox.Show("Simulacija je zaustavljena nakon 30 koraka.");
+				ycurrentState = "qf";
+			}
 		}
+
 
 
 
@@ -537,6 +564,9 @@ namespace TuringMachineInterpreter.GUI
 			this.ytxtTransitions = new System.Windows.Forms.TextBox();
 			this.ybtnStep = new System.Windows.Forms.Button();
 			this.ylblState = new System.Windows.Forms.Label();
+			this.label19 = new System.Windows.Forms.Label();
+			this.label20 = new System.Windows.Forms.Label();
+			this.label21 = new System.Windows.Forms.Label();
 			this.tabControl1.SuspendLayout();
 			this.tabPage1.SuspendLayout();
 			this.tabPage2.SuspendLayout();
@@ -751,6 +781,9 @@ namespace TuringMachineInterpreter.GUI
 			// 
 			// tabPage2
 			// 
+			this.tabPage2.Controls.Add(this.label21);
+			this.tabPage2.Controls.Add(this.label20);
+			this.tabPage2.Controls.Add(this.label19);
 			this.tabPage2.Controls.Add(this.label16);
 			this.tabPage2.Controls.Add(this.label17);
 			this.tabPage2.Controls.Add(this.ytxtInstructions);
@@ -809,7 +842,7 @@ namespace TuringMachineInterpreter.GUI
 			// 
 			this.label9.Font = new System.Drawing.Font("Segoe UI", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(238)));
 			this.label9.ForeColor = System.Drawing.SystemColors.AppWorkspace;
-			this.label9.Location = new System.Drawing.Point(349, 398);
+			this.label9.Location = new System.Drawing.Point(296, 398);
 			this.label9.Name = "label9";
 			this.label9.Size = new System.Drawing.Size(111, 18);
 			this.label9.TabIndex = 37;
@@ -819,7 +852,7 @@ namespace TuringMachineInterpreter.GUI
 			// 
 			this.label10.Font = new System.Drawing.Font("Segoe UI", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(238)));
 			this.label10.ForeColor = System.Drawing.SystemColors.AppWorkspace;
-			this.label10.Location = new System.Drawing.Point(349, 380);
+			this.label10.Location = new System.Drawing.Point(296, 380);
 			this.label10.Name = "label10";
 			this.label10.Size = new System.Drawing.Size(155, 18);
 			this.label10.TabIndex = 36;
@@ -829,7 +862,7 @@ namespace TuringMachineInterpreter.GUI
 			// 
 			this.label11.Font = new System.Drawing.Font("Segoe UI", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(238)));
 			this.label11.ForeColor = System.Drawing.SystemColors.AppWorkspace;
-			this.label11.Location = new System.Drawing.Point(349, 362);
+			this.label11.Location = new System.Drawing.Point(296, 362);
 			this.label11.Name = "label11";
 			this.label11.Size = new System.Drawing.Size(111, 18);
 			this.label11.TabIndex = 35;
@@ -939,6 +972,36 @@ namespace TuringMachineInterpreter.GUI
 			this.ylblState.TabIndex = 28;
 			this.ylblState.Text = "string";
 			// 
+			// label19
+			// 
+			this.label19.Font = new System.Drawing.Font("Segoe UI", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(238)));
+			this.label19.ForeColor = System.Drawing.SystemColors.AppWorkspace;
+			this.label19.Location = new System.Drawing.Point(310, 130);
+			this.label19.Name = "label19";
+			this.label19.Size = new System.Drawing.Size(111, 18);
+			this.label19.TabIndex = 42;
+			this.label19.Text = "npr. q0,1 -> q1,1,R";
+			// 
+			// label20
+			// 
+			this.label20.Font = new System.Drawing.Font("Segoe UI", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(238)));
+			this.label20.ForeColor = System.Drawing.SystemColors.AppWorkspace;
+			this.label20.Location = new System.Drawing.Point(310, 112);
+			this.label20.Name = "label20";
+			this.label20.Size = new System.Drawing.Size(306, 18);
+			this.label20.TabIndex = 43;
+			this.label20.Text = "trenutnoStanje, značka -> novoStanje, novaZnačka, smjer";
+			// 
+			// label21
+			// 
+			this.label21.Font = new System.Drawing.Font("Segoe UI", 8.25F, System.Drawing.FontStyle.Underline, System.Drawing.GraphicsUnit.Point, ((byte)(238)));
+			this.label21.ForeColor = System.Drawing.SystemColors.AppWorkspace;
+			this.label21.Location = new System.Drawing.Point(310, 94);
+			this.label21.Name = "label21";
+			this.label21.Size = new System.Drawing.Size(135, 18);
+			this.label21.TabIndex = 44;
+			this.label21.Text = "Format upisa instrukcija";
+			// 
 			// MainScreen
 			// 
 			this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -996,6 +1059,9 @@ namespace TuringMachineInterpreter.GUI
 		private Label ylblState;
 		private Label label18;
 		private Label label16;
+		private Label label19;
+		private Label label21;
+		private Label label20;
 	}
 }
 
